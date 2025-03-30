@@ -1,0 +1,10 @@
+
+
+.container-dotted-bg {
+    background-image: 
+        radial-gradient(circle at 1px 1px, #ccc 1px, transparent 1px);
+    background-size: 20px 20px; /* Adjust dot spacing */
+    background-color: white; /* Base color */
+    min-height: 90vh; /* Full height */
+    padding: 2rem; /* Add padding for content */
+}

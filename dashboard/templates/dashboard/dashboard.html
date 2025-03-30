@@ -1,0 +1,8 @@
+{% extends "dashboard/base.html" %}
+{% block user-navbar %}
+    {% if user.is_authenticated %} 
+        {{ user.username }} 
+    {% else %}
+        Usuario
+    {% endif %}
+{% endblock %}
