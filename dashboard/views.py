@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_list_or_404
+from django.shortcuts import render
+from django.test.utils import setup_test_environment
 from django.utils import timezone
 from datetime import timedelta
 from . import models
@@ -7,7 +8,7 @@ from . import models
 def main_view(request):
     # Get the projects
     projects = models.projects.objects.all()
-    # Get the most recent projects (projects bewteen 8 days ago and the current time)
+    # Get the most recent projects (projects bewteen 16 days ago and the current time)
     time = timezone.now() - timedelta(days= 16)
     recent_projects = projects.filter(creation_date__gte= time).order_by("-creation_date")
     old_projects= projects.filter(creation_date__lte= time - timedelta(days= 1)).order_by("-creation_date")
