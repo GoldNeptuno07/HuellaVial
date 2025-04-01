@@ -1,10 +1,21 @@
-
-
 .container-dotted-bg {
     background-image: 
         radial-gradient(circle at 1px 1px, #ccc 1px, transparent 1px);
-    background-size: 20px 20px; /* Adjust dot spacing */
-    background-color: white; /* Base color */
-    min-height: 90vh; /* Full height */
-    padding: 2rem; /* Add padding for content */
+    background-size: 20px 20px;
+    background-color: white; 
+    min-height: 90vh; 
+    padding: 2rem;
+}
+.g-3 { 
+    gap: 1rem;
+}
+.hover-effect {
+    background-color: #f8f9fa;
+    transition: transform 0.2s ease-in-out, background-color 0.3s ease;
+    border-radius: 10px;
+}
+.hover-effect:hover {
+    background-color: #dee2e6 !important;
+    transform: scale(1.05);
+    cursor: pointer;
 }

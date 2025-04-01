@@ -8,18 +8,19 @@
 {% endblock %}
 
 {% block projects_list %}
-    <div class="row row-cols">
+    <div class="row justify-content-center row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
         {% for project in projects %}
-            <div class="col-sm">
-                <span class="row center">
-                    <img src="../../static/dashboard/images/icon.png" alt="Project Image" class="img-fluid" style="width: 100px; height: 100px;">
-                </span>
-                <span class="row">
-                    <p class="text-center text" style="font-size: 15px;">
-                        {{ project.name }}<br>{{ project.creation_date }}
-                    </p>
-                </span>
+            <div class="col text-center">
+                <a href="#" class="text-decoration-none">
+                    <div class="card shadow-sm border-0 text-dark text-center p-3 hover-effect">
+                        <img src="../../static/dashboard/images/icon.png" alt="Project Image" class="img-fluid mx-auto" style="width: 100px; height: 80px;">
+                        <p class="mt-2 fw-semibold">
+                            {{ project.name }}<br>
+                            <small class="text-muted">Created Date: <br>{{ project.creation_date }}</small>
+                        </p>
+                    </div>
+                </a>
             </div>
         {% endfor %}
-    </div> 
+    </div>
 {% endblock %}
