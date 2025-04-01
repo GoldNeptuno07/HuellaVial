@@ -1,16 +1,9 @@
 {% extends "dashboard/base.html" %}
-{% block user-navbar %}
-    {% if user.is_authenticated %} 
-        {{ user.username }} 
-    {% else %}
-        Usuario
-    {% endif %}
-{% endblock %}
 
-{% block projects_list %}
-    <div class="row justify-content-center row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
-        {% for project in projects %}
-            <div class="col text-center">
+{% block recent_projects_block %}
+    <div class="row justify-content-center g-3">
+        {% for project in recent_projects %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 text-center">
                 <a href="#" class="text-decoration-none">
                     <div class="card shadow-sm border-0 text-dark text-center p-3 hover-effect">
                         <img src="../../static/dashboard/images/icon.png" alt="Project Image" class="img-fluid mx-auto" style="width: 100px; height: 80px;">
@@ -24,3 +17,23 @@
         {% endfor %}
     </div>
 {% endblock %}
+
+
+{% block old_projects_block %}
+    <div class="row justify-content-center g-3">
+        {% for project in old_projects %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 text-center">
+                <a href="#" class="text-decoration-none">
+                    <div class="card shadow-sm border-0 text-dark text-center p-3 hover-effect">
+                        <img src="../../static/dashboard/images/icon.png" alt="Project Image" class="img-fluid mx-auto" style="width: 100px; height: 80px;">
+                        <p class="mt-2 fw-semibold">
+                            {{ project.name }}<br>
+                            <small class="text-muted">Created Date: <br>{{ project.creation_date }}</small>
+                        </p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+

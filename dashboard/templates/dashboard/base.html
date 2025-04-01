@@ -12,28 +12,33 @@
         <div class="container-fluid align-items-center">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" 
                     aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
             </button>
             <a href="" class="navbar-brand fw-bold fs-3">{{ user.username|upper}}</a>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav align-items-center">
-                    <a class="nav-link" href="#">Nuevo Projecto</a>
-                    <a class="nav-link" href="#">Mi perfil</a>
-                    <a class="nav-link" href="#">Ayuda</a>
-                    <a class="nav-link" href="#">Salir</a>
+                    <a class="nav-link fw-semibold" href="#">Nuevo Projecto</a>
+                    <a class="nav-link fw-semibold" href="#">Mi perfil</a>
+                    <a class="nav-link fw-semibold" href="#">Ayuda</a>
+                    <a class="nav-link fw-semibold" href="#">Salir</a>
                 </div>
             </div>
         </div>
     </nav>
-      
-      
-    
+    <!-- Projects Container -->
     <div class="container-fluid container-dotted-bg">
         <p class="fs-4 text fw-semibold">
             Projectos Recientes
         </p>
-        <div class="container-xxl text-center d-flex flex-column align-items-center">
-            {% block projects_list %}{% endblock %}
+        <div class="container-xxl">
+            {% block recent_projects_block %}{% endblock %}
+        </div>
+        <hr>
+        <p class="fs-4 text fw-semibold">
+            Projectos
+        </p>
+        <div class="container-xxl">
+            {% block old_projects_block %}{% endblock %}
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
