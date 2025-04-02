@@ -22,3 +22,26 @@ class DashboardViewTests(TestCase):
         """
         response = self.client.get(reverse("dashboard:main"))
         self.assertEqual(response.status_code, 200)
+
+    def test_main_view_with_no_future_projects(self):
+        """
+            It does not display future projects.
+        """
+        future_project = models.projects.objects.create(name="Future Project", creation_date=timezone.now() + timedelta(days=30))
+        response = self.client.get(reverse("dashboard:main"))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['recent_projects'], [])
+        self.assertQuerySetEqual(response.context['old_projects'], [])
+
+    def test_main_view_display_available_projects(self):
+        """
+            If projects exist, they should be displayed.
+        """
+        recent_project = models.projects.objects.create(name="Recent Project", creation_date=timezone.now())
+        time = timezone.now() - timedelta(days=60)
+        old_project = models.projects.objects.create(name="Past Project", creation_date= time)
+
+        response = self.client.get(reverse("dashboard:main"))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['recent_projects'], [recent_project])
+        self.assertQuerySetEqual(response.context['old_projects'], [old_project])

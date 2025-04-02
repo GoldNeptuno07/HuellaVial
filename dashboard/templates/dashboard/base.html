@@ -17,10 +17,7 @@
             <a href="" class="navbar-brand fw-bold fs-3">{{ user.username|upper}}</a>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav align-items-center">
-                    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Nuevo Projecto</a>
-                    <a class="nav-link fw-semibold" href="#">Mi perfil</a>
-                    <a class="nav-link fw-semibold" href="#">Ayuda</a>
-                    <a class="nav-link fw-semibold" href="#">Salir</a>
+                    {% block nav-links %}{% endblock %}
                 </div>
             </div>
         </div>

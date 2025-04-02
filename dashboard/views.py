@@ -14,8 +14,8 @@ def main_view(request):
     projects = models.projects.objects.all()
     # Get the most recent projects (projects bewteen 16 days ago and the current time)
     time = timezone.now() - timedelta(days= 16)
-    recent_projects = projects.filter(creation_date__gte= time).order_by("-creation_date")
-    old_projects= projects.filter(creation_date__lte= time - timedelta(days= 1)).order_by("-creation_date")
+    recent_projects = projects.filter(creation_date__gte= time, creation_date__lte= timezone.now()).order_by("-creation_date")
+    old_projects= projects.filter(creation_date__lte= time - timedelta(seconds= 1)).order_by("-creation_date")
     context = {
         "recent_projects": recent_projects,
         "old_projects": old_projects,
@@ -26,12 +26,12 @@ def main_view(request):
      Impact matrix view (tool)
 """
 def impact_matrix_view(request):
-    if request.method == 'post':
+    if request.method == 'POST':
         # Save the new project
-        name = request.POST["name"]
+        name = request.POST["project_name"]
         new_project = models.projects(name= name)
         new_project.save()
         # Redirect to the main view
-        return redirect("dashboard:main")
+        return render(request, "dashboard/matrix.html", {})
 
     return redirect("dashboard:main")
