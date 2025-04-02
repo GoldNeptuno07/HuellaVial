@@ -17,7 +17,7 @@
             <a href="" class="navbar-brand fw-bold fs-3">{{ user.username|upper}}</a>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav align-items-center">
-                    <a class="nav-link fw-semibold" href="#">Nuevo Projecto</a>
+                    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Nuevo Projecto</a>
                     <a class="nav-link fw-semibold" href="#">Mi perfil</a>
                     <a class="nav-link fw-semibold" href="#">Ayuda</a>
                     <a class="nav-link fw-semibold" href="#">Salir</a>
@@ -25,6 +25,18 @@
             </div>
         </div>
     </nav>
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+            <form action="{% url 'dashboard:impact-matrix' %}" method= "post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="projectName" class="form-label">Nombre del Proyecto</label>
+                    <input type="text" class="form-control" id="projectName" name="project_name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Crear Proyecto</button>
+            </form>
+        </div>
+    </div>
     <!-- Projects Container -->
     <div class="container-fluid container-dotted-bg">
         <p class="fs-4 text fw-semibold">
