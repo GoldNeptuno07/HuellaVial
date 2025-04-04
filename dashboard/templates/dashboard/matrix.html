@@ -6,3 +6,87 @@
     <a class="nav-link fw-semibold" href="#">Ayuda</a>
     <a class="nav-link fw-semibold" href="#">Salir</a>
 {% endblock %}
+
+
+{% block content %}
+    <div class="container-xl" style="background-color: gray;">
+        <table class="table">
+        <thead>
+            <tr>
+                <th scope="row" rowspan="2" colspan="2">Blank</th>
+                <th colspan="5" style="background-color: red;">PREPARACION</th>
+                <th></th>
+                <th colspan= "6" style="background-color: green;">CALIFICACION</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th class="rotate"><div><span>LIMPIEZA</span></div></th>
+                <th class="rotate"><div><span>DESPALME</span></div></th>
+                <th class="rotate"><div><span>CERCADO</span></div></th>
+                <th class="rotate"><div><span>ESTUDIO</span></div></th>
+                <th class="rotate"><div><span>EXCABACION DE ZANJA</span></div></th>
+                <th>DESCRIPCION DEL IMPACTO AMBIENTAL IDENTIFICADO</th>
+                <th calss="rotate"><div>INTENSIDAD</div></th>
+                <th class="rotate"><div>IMPORTANCIA</div></th>
+                <th class="rotate"><div>EXTENSION</div></th>
+                <th class="rotate"><div>PERSISTENCIA</div></th>
+                <th class="rotate"><div>REVERSIBILIDAD</div></th>
+                <th><div>TOTAL</div></th>
+                <th>Impaco Significativo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Matrix content -->
+            <tr>
+                <th scope="row" rowspan="3" style="background-color:red;">Agua</th>
+                <td>Calidad del agua superficial</td>
+                <td>X</td>
+                <td>X</td>
+                <td></td>
+                <td></td>
+                <td>X</td>
+                <td>CONTAMINACION DEL ARROYO</td>
+                <td>2</td>
+                <td>3</td>
+                <td>2</td>
+                <td>5</td>
+                <td>1</td>
+                <td>13</td>
+                <td>NO</td>
+            </tr>
+            <tr>
+                <td>Flujo de agua superficial</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>X</td>
+                <td>ALTERACION DE FLUJO DE AGUA CON EXCABACIONES</td>
+                <td>2</td>
+                <td>3</td>
+                <td>2</td>
+                <td>5</td>
+                <td>3</td>
+                <td>15</td>
+                <td>Si</td>
+            </tr>
+            <tr>
+                <td>Flujo de agua superficial</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>X</td>
+                <td>ALTERACION DE FLUJO DE AGUA CON EXCABACIONES</td>
+                <td>2</td>
+                <td>3</td>
+                <td>2</td>
+                <td>5</td>
+                <td>3</td>
+                <td>15</td>
+                <td>Si</td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+{% endblock %}

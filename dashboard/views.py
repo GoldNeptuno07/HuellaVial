@@ -7,6 +7,23 @@ from . import models
 # Create your views here.
 
 """
+    Login View
+"""
+def login_view(request):
+    pass
+
+"""
+    Log Out
+"""
+def logout(request):
+    # Log out the user
+    if request.user.is_authenticated:
+        logout(request)
+    return redirect("dashboard:main")
+
+
+
+"""
     Main view of the dashboard
 """
 def main_view(request): 
@@ -29,9 +46,11 @@ def impact_matrix_view(request):
     if request.method == 'POST':
         # Save the new project
         name = request.POST["project_name"]
-        new_project = models.projects(name= name)
-        new_project.save()
+        # new_project = models.projects(name= name)
+        # new_project.save()
         # Redirect to the main view
         return render(request, "dashboard/matrix.html", {})
 
-    return redirect("dashboard:main")
+    # Change impact-matrix to main on production
+    #return redirect("dashboard:impact-matrix")
+    return render(request, "dashboard/matrix.html", {})
