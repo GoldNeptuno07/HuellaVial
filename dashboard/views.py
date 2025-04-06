@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.test.utils import setup_test_environment
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 from datetime import timedelta
 from . import models
@@ -45,28 +45,65 @@ def main_view(request):
 """
      Impact matrix view (tool)
 """
-def impact_matrix_view(request, project_id: int= None, phase_name: str= None):
+def impact_matrix_view(request, project_id: int = None, phase_name: str = None):
     if request.method == 'POST':
-        # Save the new project
-        name = request.POST["project_name"]
-        project = models.projects(name= name)
-        project.save()
-        # Add the default phases of the project
-        for phase in ['operacion','construccion','preparacion']:
-            current_phase = models.phase.objects.create(id_project= new_project, name= phase)
-    else:
-        project = get_object_or_404(models.projects, pk= project_id)
-
-    # Get project's phases
-    phases = project.phases.all()
-    current_phase = phases.get(name= phase_name)
-    # 
+        # Handle new project creation
+        name = request.POST.get("project_name")
+        project = models.projects.objects.create(name=name)
+        
+        # Create default phases
+        for phase_name in ['preparacion', 'construccion', 'operacion']:
+            models.phase.objects.create(id_project=project, name=phase_name)
+            
+        # Redirect to the first phase
+        first_phase = project.phases.first()
+        return redirect('dashboard:impact-matrix', 
+                      project_id=project.id,
+                      phase_name=first_phase.name)
     
-    # Add objects to context
+    # GET request handling
+    project = get_object_or_404(models.projects, pk=project_id)
+    current_phase = get_object_or_404(models.phase, id_project=project, name=phase_name)
+    
+    # Prefetch related data for performance
+    operations = current_phase.operations.all().prefetch_related('impact_set')
+    resources = models.resource.objects.all().prefetch_related('subresources')
+    
+    # Prepare impact data
+    impact_data = {}
+    for operation in operations:
+        for subresource in models.subresource.objects.all():
+            impact_data[f"{operation.id}-{subresource.id}"] = operation.impact_set.filter(
+                id_subresource=subresource,
+                is_marked=True
+            ).exists()
+    
     context = {
         "project": project,
-        "phases": phases,
+        "phases": project.phases.all(),
         "phase": current_phase,
+        "operations": operations,
+        "resources": resources,
+        "impact_data": impact_data,
     }
-    # Redirect to the impact matrix view
     return render(request, "dashboard/matrix.html", context)
+
+@require_POST
+def toggle_impact(request):
+    operation_id = request.POST.get('operation_id')
+    subresource_id = request.POST.get('subresource_id')
+    
+    impact_obj, created = models.impact.objects.get_or_create(
+        id_operation_id=operation_id,
+        id_subresource_id=subresource_id,
+        defaults={'is_marked': True}
+    )
+    
+    if not created:
+        impact_obj.is_marked = not impact_obj.is_marked
+        impact_obj.save()
+    
+    return JsonResponse({
+        'status': 'success',
+        'is_marked': impact_obj.is_marked
+    })

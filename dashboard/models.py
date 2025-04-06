@@ -47,9 +47,13 @@ class subresource(models.Model):
         return "<subresource {}>".format(self.name)
 
 class impact(models.Model):
-    id_operation= models.ForeignKey(operation, on_delete= models.CASCADE)
-    id_subresource= models.ForeignKey(subresource, on_delete= models.CASCADE)
-    observation= models.CharField(max_length= 50)
+    id_operation = models.ForeignKey(operation, on_delete=models.CASCADE)
+    id_subresource = models.ForeignKey(subresource, on_delete=models.CASCADE)
+    is_marked = models.BooleanField(default=False)  # New field to track X marks
+    observation = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        unique_together = ('id_operation', 'id_subresource')  # Prevent duplicates
 
     def __str__(self):
         return "<impact object>"

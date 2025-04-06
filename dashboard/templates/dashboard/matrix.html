@@ -1,4 +1,5 @@
 {% extends 'dashboard/base.html' %}
+{% load impact_filters %}
 
 {% block title %}{{ project.name }}{% endblock %}
 
@@ -46,38 +47,38 @@
         </thead>
         <tbody>
             <!-- Matrix content -->
-            <tr>
-                <th scope="row" rowspan="3" class="text-center align-middle">Agua</th>
-                <td class="text-center align-middle">Calidad del agua superficial</td>
-                <!-- Adding Operations fields -->
-                 {% for operation in phase.operations.all %}
-                    <td class="text-center border text-center align-middle">X</td>
-                 {% endfor %}
-                <td class="text-center">Contaminacion del arroyo</td>
-                <td class="text-center border text-center align-middle">2</td>
-                <td class="text-center border text-center align-middle">2</td>
-                <td class="text-center border text-center align-middle">2</td>
-                <td class="text-center border text-center align-middle">3</td>
-                <td class="text-center border text-center align-middle">2</td>
-                <td class="text-center border text-center align-middle">11</td>
-                <td class="text-center border text-center align-middle">NO</td>
-            </tr>
-            <tr>
-                <td>Flujo de agua superficial</td>
-                <td class="text-center border text-center align-middle"></td>
-                <td class="text-center border text-center align-middle"></td>
-                <td class="text-center border text-center align-middle"></td>
-                <td class="text-center border text-center align-middle"></td>
-                <td class="text-center border text-center align-middle">X</td>
-                <td>Alteracion de flujo de agua con excabaciones</td>
-                <td class="text-center border text-center align-middle">2</td>
-                <td class="text-center border text-center align-middle">3</td>
-                <td class="text-center border text-center align-middle">2</td>
-                <td class="text-center border text-center align-middle">5</td>
-                <td class="text-center border text-center align-middle">3</td>
-                <td class="text-center border text-center align-middle">15</td>
-                <td class="text-center border text-center align-middle">Si</td>
-            </tr>
+            {% for resource_obj in resources %}
+                {% for subresource_obj in resource_obj.subresources.all %}
+                <tr>
+                    {% if forloop.first %}
+                    <th scope="row" rowspan="{{ resource_obj.subresources.count }}" class="text-center align-middle">
+                        {{ resource_obj.name }}
+                    </th>
+                    {% endif %}
+                    
+                    <td class="text-center align-middle">{{ subresource_obj.name }}</td>
+                    
+                    {% for operation_obj in phase.operations.all %}
+                        {% with marked=operation_obj|is_marked:subresource_obj %}
+                        <td class="impact-cell text-center border align-middle {% if marked %}bg-warning{% endif %}"
+                            data-operation="{{ operation_obj.id }}"
+                            data-subresource="{{ subresource_obj.id }}">
+                            {% if marked %}X{% endif %}
+                        </td>
+                        {% endwith %}
+                    {% endfor %}
+                    
+                    <td class="text-center">Contaminacion del arroyo</td>
+                    <td class="text-center border text-center align-middle">2</td>
+                    <td class="text-center border text-center align-middle">2</td>
+                    <td class="text-center border text-center align-middle">2</td>
+                    <td class="text-center border text-center align-middle">3</td>
+                    <td class="text-center border text-center align-middle">2</td>
+                    <td class="text-center border text-center align-middle">11</td>
+                    <td class="text-center border text-center align-middle">NO</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
         </tbody>
         </table>
     </div>
