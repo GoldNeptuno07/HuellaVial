@@ -57,3 +57,11 @@ th.rotate > div {
     overflow-wrap: break-word;
     white-space: normal;
 }
+
+.impact-cell {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.impact-cell:hover {
+    background-color: #848586;
+}

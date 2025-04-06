@@ -50,6 +50,7 @@
             {% for resource_obj in resources %}
                 {% for subresource_obj in resource_obj.subresources.all %}
                 <tr>
+                    <!-- Impacts Section (Left Side) -->
                     {% if forloop.first %}
                     <th scope="row" rowspan="{{ resource_obj.subresources.count }}" class="text-center align-middle">
                         {{ resource_obj.name }}
@@ -60,26 +61,86 @@
                     
                     {% for operation_obj in phase.operations.all %}
                         {% with marked=operation_obj|is_marked:subresource_obj %}
-                        <td class="impact-cell text-center border align-middle {% if marked %}bg-warning{% endif %}"
+                        <td class="impact-cell text-center border align-middle"
                             data-operation="{{ operation_obj.id }}"
                             data-subresource="{{ subresource_obj.id }}">
                             {% if marked %}X{% endif %}
                         </td>
                         {% endwith %}
                     {% endfor %}
-                    
-                    <td class="text-center">Contaminacion del arroyo</td>
-                    <td class="text-center border text-center align-middle">2</td>
-                    <td class="text-center border text-center align-middle">2</td>
-                    <td class="text-center border text-center align-middle">2</td>
-                    <td class="text-center border text-center align-middle">3</td>
-                    <td class="text-center border text-center align-middle">2</td>
-                    <td class="text-center border text-center align-middle">11</td>
-                    <td class="text-center border text-center align-middle">NO</td>
-                </tr>
+
+                    <!-- Ratings Section (Right Side) -->
+                    {% with rating=phase|get_rating:subresource_obj %}
+                        <!-- Description -->
+                        <td class="text-center border align-middle">
+                            {{ rating.description }}
+                        </td>
+                        <!-- Intensity -->
+                        <td class="text-center border align-middle"
+                            data-phase="{{ phase.id }}"
+                            data-subresource="{{ subresource_obj.id }}">
+                            {{ rating.intensity }}
+                        </td>
+                        <!-- Importance -->
+                        <td class="text-center border align-middle"
+                            data-phase="{{ phase.id }}"
+                            data-subresource="{{ subresource_obj.id }}">
+                            {{ rating.importance }}
+                        </td>
+                        <!-- Extension -->
+                        <td class="text-center border align-middle"
+                            data-phase="{{ phase.id }}"
+                            data-subresource="{{ subresource_obj.id }}">
+                            {{ rating.extension }}
+                        </td>
+                        <!-- Persistence -->
+                        <td class="text-center border align-middle"
+                            data-phase="{{ phase.id }}"
+                            data-subresource="{{ subresource_obj.id }}">
+                            {{ rating.persistence }}
+                        </td>
+                        <!-- Reversibility -->
+                        <td class="text-center border align-middle"
+                            data-phase="{{ phase.id }}"
+                            data-subresource="{{ subresource_obj.id }}">
+                            {{ rating.reversibility }}
+                        </td>
+                        <!-- Total -->
+                        <td class="text-center border align-middle">20</td>
+                        <!-- Significant Impact -->
+                        <td class="text-center border align-middle">NO</td>
+                    {% endwith %}
+                    </tr>
                 {% endfor %}
             {% endfor %}
         </tbody>
         </table>
     </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        document.querySelectorAll('.impact-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                const operationId = this.dataset.operation;
+                const subresourceId = this.dataset.subresource;
+                
+                fetch('{% url "dashboard:toggle_impact" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `operation_id=${operationId}&subresource_id=${subresourceId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        this.classList.toggle('marked', data.is_marked);
+                        this.innerHTML = data.is_marked ? 'X' : '';
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

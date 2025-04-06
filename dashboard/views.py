@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.http import JsonResponse
 from datetime import timedelta
 from . import models
 
