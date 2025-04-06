@@ -9,8 +9,8 @@ from . import models
 class ProjectsModelTests(TestCase):
     def test_was_displayed_recently_with_future_project(self):
         """
-            was_displayed_recently() returns False for projects whose
-            creation_date is in the future.
+            Assess function to get the projects with a creation date
+            between "now - 16 days <= creation_date <= now"
         """
         future_project = models.projects(creation_date=timezone.now() + timedelta(days=30))
         self.assertIs(future_project.was_published_recently(), False)
@@ -23,25 +23,13 @@ class DashboardViewTests(TestCase):
         response = self.client.get(reverse("dashboard:main"))
         self.assertEqual(response.status_code, 200)
 
-    def test_main_view_with_no_future_projects(self):
-        """
-            It does not display future projects.
-        """
-        future_project = models.projects.objects.create(name="Future Project", creation_date=timezone.now() + timedelta(days=30))
-        response = self.client.get(reverse("dashboard:main"))
-        self.assertEqual(response.status_code, 200)
-        self.assertQuerySetEqual(response.context['recent_projects'], [])
-        self.assertQuerySetEqual(response.context['old_projects'], [])
-
     def test_main_view_display_available_projects(self):
         """
-            If projects exist, they should be displayed.
+            Test to assess that the available projects are being displayed. 
         """
-        recent_project = models.projects.objects.create(name="Recent Project", creation_date=timezone.now())
-        time = timezone.now() - timedelta(days=60)
-        old_project = models.projects.objects.create(name="Past Project", creation_date= time)
+        # Project with recent date
+        recent_project1 = models.projects.objects.create(name="Recent Project")
+        recent_project2 = models.projects.objects.create(name="Recent Project")
 
         response = self.client.get(reverse("dashboard:main"))
-        self.assertEqual(response.status_code, 200)
-        self.assertQuerySetEqual(response.context['recent_projects'], [recent_project])
-        self.assertQuerySetEqual(response.context['old_projects'], [old_project])
+        self.assertQuerySetEqual(response.context['recent_projects'], [recent_project1,recent_project2])

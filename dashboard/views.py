@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.test.utils import setup_test_environment
 from django.utils import timezone
 from datetime import timedelta
@@ -11,6 +11,7 @@ from . import models
 """
 def login_view(request):
     pass
+
 
 """
     Log Out
@@ -29,10 +30,12 @@ def logout(request):
 def main_view(request): 
     # Get the projects
     projects = models.projects.objects.all()
-    # Get the most recent projects (projects bewteen 16 days ago and the current time)
+    # Get the most recent projects (projects created 16 days ago and up to now)
     time = timezone.now() - timedelta(days= 16)
+    # Order recent projects by creation date
     recent_projects = projects.filter(creation_date__gte= time, creation_date__lte= timezone.now()).order_by("-creation_date")
-    old_projects= projects.filter(creation_date__lte= time - timedelta(seconds= 1)).order_by("-creation_date")
+    # Order old projects by creation date
+    old_projects= projects.filter(creation_date__lte= time - timedelta(seconds= 1)).order_by("-creation_date")                 
     context = {
         "recent_projects": recent_projects,
         "old_projects": old_projects,
@@ -42,15 +45,28 @@ def main_view(request):
 """
      Impact matrix view (tool)
 """
-def impact_matrix_view(request):
+def impact_matrix_view(request, project_id: int= None, phase_name: str= None):
     if request.method == 'POST':
         # Save the new project
         name = request.POST["project_name"]
-        # new_project = models.projects(name= name)
-        # new_project.save()
-        # Redirect to the main view
-        return render(request, "dashboard/matrix.html", {})
+        project = models.projects(name= name)
+        project.save()
+        # Add the default phases of the project
+        for phase in ['operacion','construccion','preparacion']:
+            current_phase = models.phase.objects.create(id_project= new_project, name= phase)
+    else:
+        project = get_object_or_404(models.projects, pk= project_id)
 
-    # Change impact-matrix to main on production
-    #return redirect("dashboard:impact-matrix")
-    return render(request, "dashboard/matrix.html", {})
+    # Get project's phases
+    phases = project.phases.all()
+    current_phase = phases.get(name= phase_name)
+    # 
+    
+    # Add objects to context
+    context = {
+        "project": project,
+        "phases": phases,
+        "phase": current_phase,
+    }
+    # Redirect to the impact matrix view
+    return render(request, "dashboard/matrix.html", context)

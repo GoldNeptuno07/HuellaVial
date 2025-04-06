@@ -1,11 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>{% block title %}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href='../static/dashboard/dashboard.css'>
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-secondary">
@@ -24,7 +25,7 @@
     </nav>
     <div class="collapse" id="collapseExample">
         <div class="card card-body">
-            <form action="{% url 'dashboard:impact-matrix' %}" method= "post">
+            <form action="{% url 'dashboard:impact-matrix' project_id=0 phase_name='preparacion' %}" method= "post">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="projectName" class="form-label">Nombre del Proyecto</label>

@@ -1,6 +1,17 @@
 {% extends 'dashboard/base.html' %}
 
+{% block title %}{{ project.name }}{% endblock %}
+
 {% block nav-links %}
+    <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Fases del Projecto
+    </a>
+    <ul class="dropdown-menu">
+        {% for p in phases %}
+            <li><a class="dropdown-item" href="{% url 'dashboard:impact-matrix' project_id=project.id phase_name=p.name %}">{{ p.name|upper }}</a></li>
+        {% endfor %}
+    </ul>
+
     <a class="nav-link fw-semibold" href="#">Agregar</a>
     <a class="nav-link fw-semibold" href="#">Remover</a>
     <a class="nav-link fw-semibold" href="#">Ayuda</a>
@@ -9,82 +20,63 @@
 
 
 {% block content %}
-    <div class="container-xl" style="background-color: gray;">
+    <div class="container-xl">
         <table class="table">
         <thead>
             <tr>
-                <th scope="row" rowspan="2" colspan="2">Blank</th>
-                <th colspan="5" style="background-color: red;">PREPARACION</th>
+                <th scope="row" rowspan="2" colspan="2"></th>
+                <th colspan="{{ phase.operations.count }}" style="background-color: orange;" class="text-center">{{ phase.name|upper }}</th>
                 <th></th>
-                <th colspan= "6" style="background-color: green;">CALIFICACION</th>
+                <th colspan= "6" style="background-color: green;" class="text-center">CALIFICACION</th>
                 <th></th>
             </tr>
             <tr>
-                <th class="rotate"><div><span>LIMPIEZA</span></div></th>
-                <th class="rotate"><div><span>DESPALME</span></div></th>
-                <th class="rotate"><div><span>CERCADO</span></div></th>
-                <th class="rotate"><div><span>ESTUDIO</span></div></th>
-                <th class="rotate"><div><span>EXCABACION DE ZANJA</span></div></th>
-                <th>DESCRIPCION DEL IMPACTO AMBIENTAL IDENTIFICADO</th>
-                <th calss="rotate"><div>INTENSIDAD</div></th>
+                {% for operation in phase.operations.all %}
+                 <th class="rotate"><div><span>{{ operation.name|upper }}</span></div></th>
+                {% endfor %}
+                <th class="text-center fs-10 text-center align-middle">DESCRIPCION DEL IMPACTO AMBIENTAL IDENTIFICADO</th>
+                <th class="rotate"><div>INTENSIDAD</div></th>
                 <th class="rotate"><div>IMPORTANCIA</div></th>
                 <th class="rotate"><div>EXTENSION</div></th>
                 <th class="rotate"><div>PERSISTENCIA</div></th>
                 <th class="rotate"><div>REVERSIBILIDAD</div></th>
-                <th><div>TOTAL</div></th>
-                <th>Impaco Significativo</th>
+                <th class="rotate"><div>TOTAL</div></th>
+                <th class="text-center align-middle">Impacto Significativo</th>
             </tr>
         </thead>
         <tbody>
             <!-- Matrix content -->
             <tr>
-                <th scope="row" rowspan="3" style="background-color:red;">Agua</th>
-                <td>Calidad del agua superficial</td>
-                <td>X</td>
-                <td>X</td>
-                <td></td>
-                <td></td>
-                <td>X</td>
-                <td>CONTAMINACION DEL ARROYO</td>
-                <td>2</td>
-                <td>3</td>
-                <td>2</td>
-                <td>5</td>
-                <td>1</td>
-                <td>13</td>
-                <td>NO</td>
+                <th scope="row" rowspan="3" class="text-center align-middle">Agua</th>
+                <td class="text-center align-middle">Calidad del agua superficial</td>
+                <!-- Adding Operations fields -->
+                 {% for operation in phase.operations.all %}
+                    <td class="text-center border text-center align-middle">X</td>
+                 {% endfor %}
+                <td class="text-center">Contaminacion del arroyo</td>
+                <td class="text-center border text-center align-middle">2</td>
+                <td class="text-center border text-center align-middle">2</td>
+                <td class="text-center border text-center align-middle">2</td>
+                <td class="text-center border text-center align-middle">3</td>
+                <td class="text-center border text-center align-middle">2</td>
+                <td class="text-center border text-center align-middle">11</td>
+                <td class="text-center border text-center align-middle">NO</td>
             </tr>
             <tr>
                 <td>Flujo de agua superficial</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>X</td>
-                <td>ALTERACION DE FLUJO DE AGUA CON EXCABACIONES</td>
-                <td>2</td>
-                <td>3</td>
-                <td>2</td>
-                <td>5</td>
-                <td>3</td>
-                <td>15</td>
-                <td>Si</td>
-            </tr>
-            <tr>
-                <td>Flujo de agua superficial</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>X</td>
-                <td>ALTERACION DE FLUJO DE AGUA CON EXCABACIONES</td>
-                <td>2</td>
-                <td>3</td>
-                <td>2</td>
-                <td>5</td>
-                <td>3</td>
-                <td>15</td>
-                <td>Si</td>
+                <td class="text-center border text-center align-middle"></td>
+                <td class="text-center border text-center align-middle"></td>
+                <td class="text-center border text-center align-middle"></td>
+                <td class="text-center border text-center align-middle"></td>
+                <td class="text-center border text-center align-middle">X</td>
+                <td>Alteracion de flujo de agua con excabaciones</td>
+                <td class="text-center border text-center align-middle">2</td>
+                <td class="text-center border text-center align-middle">3</td>
+                <td class="text-center border text-center align-middle">2</td>
+                <td class="text-center border text-center align-middle">5</td>
+                <td class="text-center border text-center align-middle">3</td>
+                <td class="text-center border text-center align-middle">15</td>
+                <td class="text-center border text-center align-middle">Si</td>
             </tr>
         </tbody>
         </table>

@@ -78,7 +78,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "huellavial_db",
-        "USER": "angel_c",
+        "USER": "angelcruz",
         "PASSWORD": "7deenerode2004",
         "HOST": "localhost",
         "PORT": 5432,
