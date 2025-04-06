@@ -108,3 +108,18 @@ def toggle_impact(request):
         'status': 'success',
         'is_marked': impact_obj.is_marked
     })
+
+@require_POST
+def update_rating(request, rating_id):
+    if request.method == "POST":
+        try:
+            field = request.POST.get('field')
+            value = request.POST.get('value')
+            r = models.rating.objects.get(pk=rating_id)
+            setattr(r, field, value)
+            r.save()
+            return JsonResponse({"status": "ok"})
+        except rating.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Rating not found"}, status=404)
+
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)

@@ -15,14 +15,8 @@ def is_marked(operation, subresource):
 
 # Filter for the left side of the matrix (get rating)
 @register.filter(name='get_rating')
-def get_rating(phase_obj, subresource_obj):
+def get_rating(phase, subresource):
     try:
-        phase_id = phase_obj.id
-        subresource_id = subresource_obj.id
-
-        return rating.objects.get(
-            id_phase_id=phase_id,
-            id_subresource_id=subresource_id,
-        )
+        return rating.objects.get(id_phase=phase, id_subresource=subresource)
     except rating.DoesNotExist:
-        return None
+        return None  # Return None so you can check in the template

@@ -71,44 +71,56 @@
 
                     <!-- Ratings Section (Right Side) -->
                     {% with rating=phase|get_rating:subresource_obj %}
-                        <!-- Description -->
-                        <td class="text-center border align-middle">
-                            {{ rating.description }}
-                        </td>
-                        <!-- Intensity -->
-                        <td class="text-center border align-middle"
-                            data-phase="{{ phase.id }}"
-                            data-subresource="{{ subresource_obj.id }}">
-                            {{ rating.intensity }}
-                        </td>
-                        <!-- Importance -->
-                        <td class="text-center border align-middle"
-                            data-phase="{{ phase.id }}"
-                            data-subresource="{{ subresource_obj.id }}">
-                            {{ rating.importance }}
-                        </td>
-                        <!-- Extension -->
-                        <td class="text-center border align-middle"
-                            data-phase="{{ phase.id }}"
-                            data-subresource="{{ subresource_obj.id }}">
-                            {{ rating.extension }}
-                        </td>
-                        <!-- Persistence -->
-                        <td class="text-center border align-middle"
-                            data-phase="{{ phase.id }}"
-                            data-subresource="{{ subresource_obj.id }}">
-                            {{ rating.persistence }}
-                        </td>
-                        <!-- Reversibility -->
-                        <td class="text-center border align-middle"
-                            data-phase="{{ phase.id }}"
-                            data-subresource="{{ subresource_obj.id }}">
-                            {{ rating.reversibility }}
-                        </td>
-                        <!-- Total -->
-                        <td class="text-center border align-middle">20</td>
-                        <!-- Significant Impact -->
-                        <td class="text-center border align-middle">NO</td>
+                        {% if rating %}
+                            <!-- Description -->
+                            <td class="text-center border align-middle">{{ rating.description }}</td>
+                            <form>
+                                {% csrf_token %}
+                                <!-- Intensity -->
+                                <td>
+                                    <select name="intensity" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                        {% for value, label in rating.rating_scale.choices %}
+                                            <option value="{{ value }}" {% if value == rating.intensity %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <!-- Importance -->
+                                <td>
+                                    <select name="importance" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                        {% for value, label in rating.rating_scale.choices %}
+                                            <option value="{{ value }}" {% if value == rating.importance %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <!-- Extension -->
+                                <td>
+                                    <select name="extension" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}"> 
+                                        {% for value, label in rating.rating_scale.choices %}
+                                            <option value="{{ value }}" {% if value == rating.extension %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <!-- Persistence -->
+                                <td>
+                                    <select name="persistence" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                        {% for value, label in rating.rating_scale.choices %}
+                                            <option value="{{ value }}" {% if value == rating.persistence %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <!-- Reversibility -->
+                                <td>
+                                    <select name="reversibility" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                        {% for value, label in rating.rating_scale.choices %}
+                                            <option value="{{ value }}" {% if value == rating.reversibility %}selected{% endif %}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </form>
+                        {% else %}
+                            <!-- Handle missing rating (optional) -->
+                            <td colspan="7" class="text-center text-muted">No rating available</td>
+                        {% endif %}
                     {% endwith %}
                     </tr>
                 {% endfor %}
@@ -142,5 +154,29 @@
                 });
             });
         });
+        
+        document.querySelectorAll('.rating-cell').forEach(cell => {
+            cell.addEventListener('change', function() {
+                const ratingId = this.dataset.raitingId;
+                const field = this.name;
+                const value = this.value;
+
+                fetch(`/dashboard/update_rating/${ratingId}/`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `field=${field}&value=${value}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log('Success')
+                    }
+                })
+            });
+        });
+        
     </script>
 {% endblock %}
