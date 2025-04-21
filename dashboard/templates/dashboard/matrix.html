@@ -78,7 +78,7 @@
                                 {% csrf_token %}
                                 <!-- Intensity -->
                                 <td>
-                                    <select name="intensity" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                    <select name="intensity" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.intensity %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -86,7 +86,7 @@
                                 </td>
                                 <!-- Importance -->
                                 <td>
-                                    <select name="importance" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                    <select name="importance" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.importance %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -94,7 +94,7 @@
                                 </td>
                                 <!-- Extension -->
                                 <td>
-                                    <select name="extension" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}"> 
+                                    <select name="extension" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.extension %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -102,7 +102,7 @@
                                 </td>
                                 <!-- Persistence -->
                                 <td>
-                                    <select name="persistence" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                    <select name="persistence" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.persistence %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -110,19 +110,28 @@
                                 </td>
                                 <!-- Reversibility -->
                                 <td>
-                                    <select name="reversibility" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}">
+                                    <select name="reversibility" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.reversibility %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
                                     </select>
                                 </td>
+                                <!-- Total Sum Column -->
+                                <td name="total" class="text-center border align-middle total-cell" id="total-{{ rating.id }}">
+                                    {{ rating.intensity|add:rating.importance|add:rating.extension|add:rating.persistence|add:rating.reversibility }}
+                                </td>
+
+                                <!-- Significant Impact -->
+                                 <td class="text-center border align-middle" id="significant-{{ rating.id }}">
+                                    <!-- Filled with JS -->
+                                 </td>
                             </form>
                         {% else %}
                             <!-- Handle missing rating (optional) -->
                             <td colspan="7" class="text-center text-muted">No rating available</td>
                         {% endif %}
                     {% endwith %}
-                    </tr>
+                </tr>
                 {% endfor %}
             {% endfor %}
         </tbody>
@@ -176,6 +185,67 @@
                     }
                 })
             });
+        });
+
+        function updateTotal(selectElement) {
+            const row = selectElement.closest('tr');
+            const ratingId = selectElement.getAttribute('data-raiting-id');
+            const totalCell = document.getElementById(`total-${ratingId}`);
+            
+            // Get all select values and sum them
+            const intensity = parseInt(row.querySelector('[name="intensity"]').value) || 0;
+            const importance = parseInt(row.querySelector('[name="importance"]').value) || 0;
+            const extension = parseInt(row.querySelector('[name="extension"]').value) || 0;
+            const persistence = parseInt(row.querySelector('[name="persistence"]').value) || 0;
+            const reversibility = parseInt(row.querySelector('[name="reversibility"]').value) || 0;
+            
+            const total = intensity + importance + extension + persistence + reversibility;
+            totalCell.textContent = total;
+
+            // Update "Impacto Significativo" for this row
+            updateSignificantImpact();
+        }
+
+        function calculateMeanTotal() {
+            const totalCells = document.querySelectorAll('.total-cell');
+            let sum = 0;
+            let count = 0;
+
+            totalCells.forEach(cell => {
+                const value = parseInt(cell.textContent) || 0;
+                sum += value;
+                count++;
+            });
+
+            return count > 0 ? sum / count : 0;
+        }
+
+        function updateSignificantImpact() {
+            const mean = calculateMeanTotal();
+            const totalCells = document.querySelectorAll('.total-cell');
+
+            totalCells.forEach(cell => {
+                const ratingId = cell.id.split('-')[1];
+                const significantCell = document.getElementById(`significant-${ratingId}`);
+                const total = parseInt(cell.textContent) || 0;
+
+                if (significantCell) {
+                    significantCell.textContent = total > mean ? 'Yes' : 'No';
+                    // Optional: Add styling (e.g., color)
+                    significantCell.style.color = total > mean ? 'red' : 'green';
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update totals for all rows
+            document.querySelectorAll('.rating-cell').forEach(cell => {
+                updateTotal(cell);
+            });
+
+            // Calculate and apply "Impacto Significativo"
+            updateSignificantImpact();
         });
         
     </script>
