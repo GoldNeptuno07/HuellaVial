@@ -70,27 +70,21 @@ def impact_matrix_view(request, project_id: int = None, phase_name: str = None):
     operations = current_phase.operations.all().prefetch_related('impact_set')
     resources = models.resource.objects.all().prefetch_related('subresources')
     
-    # Prepare impact data
-    impact_data = {}
-    for operation in operations:
-        for subresource in models.subresource.objects.all():
-            impact_data[f"{operation.id}-{subresource.id}"] = operation.impact_set.filter(
-                id_subresource=subresource,
-                is_marked=True
-            ).exists()
-    
     context = {
         "project": project,
         "phases": project.phases.all(),
         "phase": current_phase,
         "operations": operations,
         "resources": resources,
-        "impact_data": impact_data,
     }
     return render(request, "dashboard/matrix.html", context)
 
 @require_POST
 def toggle_impact(request):
+    """
+        Function to create or update an impact made by an operation
+        to a certain subresource.
+    """
     operation_id = request.POST.get('operation_id')
     subresource_id = request.POST.get('subresource_id')
     
@@ -111,6 +105,10 @@ def toggle_impact(request):
 
 @require_POST
 def update_rating(request, rating_id):
+    """
+        Function to update the damage rate of a certain
+        subresource based on the operation. 
+    """
     if request.method == "POST":
         try:
             field = request.POST.get('field')
@@ -123,3 +121,21 @@ def update_rating(request, rating_id):
             return JsonResponse({"status": "error", "message": "Rating not found"}, status=404)
 
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+@require_POST
+def add_operation(request, phase_id):
+    if request.method == "POST":
+        action= request.POST.get('action')
+        phase= models.phase.objects.get(pk= phase_id)
+        name= request.POST.get('operation_name').lower()
+        description= request.POST.get('operation_description')
+
+        exists= models.operation.objects.filter(name= name).exists()
+
+        if action == "0" and exists: # Remove if it exists
+            models.operation.objects.get(name= name).delete()
+        elif action == "1" and not exists: # Add if it doesn't exists
+            models.operation.objects.create(id_phase= phase, name= name, description= description)
+
+        return redirect('dashboard:impact-matrix', project_id= phase.id_project.id, phase_name= phase.name)
+

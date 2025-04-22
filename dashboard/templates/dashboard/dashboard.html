@@ -9,6 +9,21 @@
     <a class="nav-link fw-semibold" href="#">Salir</a>
 {% endblock %}
 
+{% block CollapseCard %}
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+            <form action="{% url 'dashboard:impact-matrix' project_id=0 phase_name='preparacion' %}" method= "post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="projectName" class="form-label">Nombre del Proyecto</label>
+                    <input type="text" class="form-control" id="projectName" name="project_name" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Crear Proyecto</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
 {% block content %}
     <p class="fs-4 text fw-semibold">
         Projectos Recientes

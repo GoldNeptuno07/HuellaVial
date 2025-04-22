@@ -28,7 +28,7 @@ class phase(models.Model):
 class operation(models.Model):
     id_phase= models.ForeignKey(phase, on_delete= models.CASCADE, related_name= "operations")
     name= models.CharField(max_length= 20)
-    description= models.CharField(max_length= 100)
+    description= models.CharField(max_length= 100, default= "NA")
 
     def __str__(self):
         return self.name
@@ -68,12 +68,12 @@ class rating(models.Model):
     
     id_phase= models.ForeignKey(phase, on_delete= models.CASCADE)
     id_subresource= models.ForeignKey(subresource, on_delete= models.CASCADE)
-    intensity= models.IntegerField(choices= rating_scale)
-    importance= models.IntegerField(choices= rating_scale)
-    extension= models.IntegerField(choices= rating_scale)
-    persistence= models.IntegerField(choices= rating_scale)
-    reversibility= models.IntegerField(choices= rating_scale)
-    description= models.CharField(max_length= 200)
+    intensity= models.IntegerField(choices= rating_scale, default= 1)
+    importance= models.IntegerField(choices= rating_scale, default= 1)
+    extension= models.IntegerField(choices= rating_scale, default= 1)
+    persistence= models.IntegerField(choices= rating_scale, default= 1)
+    reversibility= models.IntegerField(choices= rating_scale, default= 1)
+    description= models.CharField(max_length= 200, default= 'NA')
 
     def __str__(self):
         return "<rating object>"

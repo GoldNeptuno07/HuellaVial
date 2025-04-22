@@ -1,7 +1,7 @@
 {% extends 'dashboard/base.html' %}
 {% load impact_filters %}
 
-{% block title %}{{ project.name }}{% endblock %}
+{% block title %}Project | {{ project.name }}{% endblock %}
 
 {% block nav-links %}
     <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -13,11 +13,44 @@
         {% endfor %}
     </ul>
 
-    <a class="nav-link fw-semibold" href="#">Agregar</a>
-    <a class="nav-link fw-semibold" href="#">Remover</a>
-    <a class="nav-link fw-semibold" href="#">Ayuda</a>
-    <a class="nav-link fw-semibold" href="#">Salir</a>
+    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseAddOperation" role="button" aria-expanded="false" aria-controls="collapseAddOperation">Agregar Operacion</a>
+    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseRemOperation" role="button" aria-expanded="false" aria-controls="collapseRemOperation">Remover Operacion</a>
+    <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Salir</a>
 {% endblock %}
+{% block CollapseCard %}
+    <div class="collapse" id="collapseAddOperation">
+        <div class="card card-body">
+            <form action="{% url 'dashboard:add_operation' phase_id=phase.id %}" method= "post">
+                {% csrf_token %}
+                <h3>Agregar Nueva Operacion</h3>
+                <div class="mb-3">
+                    <label for="operationName" class="form-label">Nombre de la Operacion</label>
+                    <input type="text" class="form-control" id="operationName" name="operation_name" autocomplete="off" required>
+                    <label for="operationDescription" class="form-label">Descripcion</label>
+                    <input type="text" class="form-control" id="operationDescription" name="operation_description" autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-primary">Agregar Operacion</button>
+                <input type="hidden" name="action" value="1"> 
+            </form>
+        </div>
+    </div>
+    <div class="collapse" id="collapseRemOperation">
+        <div class="card card-body">
+            <form action="{% url 'dashboard:add_operation' phase_id=phase.id %}" method= "post">
+                {% csrf_token %}
+                <h3>Remover Operacion</h3>
+                <div class="mb-3">
+                    <label for="operationName" class="form-label" autocomplete="off">Nombre de la Operacion</label>
+                    <input type="text" class="form-control" id="operationName" name="operation_name" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Remover Operacion</button>
+                <input type="hidden" name="action" value="0"> 
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
 
 
 {% block content %}
@@ -35,7 +68,7 @@
                 {% for operation in phase.operations.all %}
                  <th class="rotate"><div><span>{{ operation.name|upper }}</span></div></th>
                 {% endfor %}
-                <th class="text-center fs-10 text-center align-middle">DESCRIPCION DEL IMPACTO AMBIENTAL IDENTIFICADO</th>
+                <th id="impact-description" class="text-center fs-10 text-center align-middle">DESCRIPCION DEL IMPACTO AMBIENTAL IDENTIFICADO</th>
                 <th class="rotate"><div>INTENSIDAD</div></th>
                 <th class="rotate"><div>IMPORTANCIA</div></th>
                 <th class="rotate"><div>EXTENSION</div></th>
