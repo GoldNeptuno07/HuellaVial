@@ -55,7 +55,7 @@
 
 {% block content %}
     <div class="container-xl">
-        <table class="table">
+        <table id="matrixTable" class="table">
         <thead>
             <tr>
                 <th scope="row" rowspan="2" colspan="2"></th>
@@ -174,7 +174,45 @@
 
 {% block js %}
     <script>
+        document.getElementById('matrixTable').addEventListener('dblclick', function(event) {
+            if(event.target.tagName === 'TD') {
+                const cell = event.target;
+                const originalText = cell.textContent;
+
+                // Temporary input
+                const tempInput = document.createElement('input');
+                tempInput.type = 'text';
+                tempInput.value = originalText;
+                tempInput.style.width = '100%';
+                tempInput.style.boxSizing = 'border-box';
+
+                cell.textContent = '';
+                cell.appendChild(tempInput);
+                tempInput.focus();
+
+                const save = () => {
+                    cell.textContent = tempInput.value;
+                };
+
+                // Changed to keydown (keypress doesn't detect Escape)
+                tempInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        save();
+                    }
+                    else if (e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) {
+                        cell.textContent = originalText;
+                        tempInput.blur();
+                    }
+                });
+
+                tempInput.addEventListener('blur', save);
+            }
+        });
+
         document.querySelectorAll('.impact-cell').forEach(cell => {
+            /*
+                Function to mark cell with 'X' and update the database
+            */
             cell.addEventListener('click', function() {
                 const operationId = this.dataset.operation;
                 const subresourceId = this.dataset.subresource;

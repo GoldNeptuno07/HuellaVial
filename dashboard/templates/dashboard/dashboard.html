@@ -18,7 +18,20 @@
                     <label for="projectName" class="form-label">Nombre del Proyecto</label>
                     <input type="text" class="form-control" id="projectName" name="project_name" autocomplete="off" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Crear Proyecto</button>
+                <h5>Procesos</h5>
+                <div class="mb-3">
+                    <h6>Fase Preparacion</h6>
+                    <button name="preparation[]" type="button" class="btn btn-success" onclick="addInput(this)">Agregar</button>
+                </div>
+                <div class="mb-3">
+                    <h6>Fase Construccion</h6>
+                    <button name="construction[]" type="button" class="btn btn-success" onclick="addInput(this)">Agregar</button>
+                </div>
+                <div class="mb-3">
+                    <h6>Fase Mantenimiento</h6>
+                    <button name="maintenance[]" type="button" class="btn btn-success" onclick="addInput(this)">Agregar</button>
+                </div>
+                <button type="submit" class="btn btn-primary" onclick="">Crear Proyecto</button>
             </form>
         </div>
     </div>
@@ -78,5 +91,22 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // <input type="text" class="form-control" id="projectName" name="project_name" autocomplete="off" required>
+
+        function addInput(element){
+            const parent= element.parentElement;
+            const name= element.getAttribute('name');
+            const newInput= document.createElement('input');
+            newInput.classList.add('form-control')
+            newInput.name= name;
+            newInput.autocomplete= false;
+
+            parent.insertBefore(newInput, element);
+        }
+    </script>
 {% endblock %}
 

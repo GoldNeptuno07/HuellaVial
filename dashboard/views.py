@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from datetime import timedelta
 from . import models
 
@@ -50,12 +50,25 @@ def impact_matrix_view(request, project_id: int = None, phase_name: str = None):
     if request.method == 'POST':
         # Handle new project creation
         name = request.POST.get("project_name")
+
+        operations= [
+            request.POST.getlist("preparation[]"),
+            request.POST.getlist("construction[]"),
+            request.POST.getlist("maintenance[]"),
+        ]
+
         project = models.projects.objects.create(name=name)
         
         # Create default phases
-        for phase_name in ['preparacion', 'construccion', 'operacion']:
-            models.phase.objects.create(id_project=project, name=phase_name)
-            
+        for i, phase_name in enumerate(['preparacion', 'construccion', 'operacion']):
+            new_phase= models.phase.objects.create(id_project=project, name=phase_name)
+            # Add the corresponding operations for "each" phase
+            for operation in operations[i]:
+                models.operation.objects.create(id_phase= new_phase, name= operation)
+            # Add default ratings for each subresource in the current phase
+            for subresource in models.subresource.objects.all():
+                models.rating.objects.create(id_phase= new_phase, id_subresource= subresource)
+
         # Redirect to the first phase
         first_phase = project.phases.first()
         return redirect('dashboard:impact-matrix', 
