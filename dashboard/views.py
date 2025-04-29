@@ -23,8 +23,6 @@ def logout(request):
         logout(request)
     return redirect("dashboard:main")
 
-
-
 """
     Main view of the dashboard
 """
@@ -151,4 +149,16 @@ def add_operation(request, phase_id):
             models.operation.objects.create(id_phase= phase, name= name, description= description)
 
         return redirect('dashboard:impact-matrix', project_id= phase.id_project.id, phase_name= phase.name)
+
+@require_POST
+def update_description(request, rating_id):
+    if request.method == 'POST':
+        description= request.POST.get('description')
+
+        rating_obj= models.rating.objects.get(pk= rating_id)
+        setattr(rating_obj, 'description', description)
+        rating_obj.save()
+
+        return JsonResponse({"status": "ok"})
+
 

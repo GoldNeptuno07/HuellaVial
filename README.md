@@ -4,5 +4,5 @@ Proyecto para la materia de **Emprendimiento**.
 
 
 #### TODO
-- Write the name of the project in the title of the "impact-matrix" view.
-    url: impact-matrix/<str:project_name>
+- Operations defined during project creation can't be removed.
+- Check "on_delete" value in the models, since we can't remove data from the "dashboard_projects" table.  

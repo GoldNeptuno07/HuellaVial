@@ -8,4 +8,5 @@ urlpatterns = [
     path("toggle-impact/", views.toggle_impact, name="toggle_impact"),
     path("update_rating/<int:rating_id>/", views.update_rating, name="update_rating"),
     path("add_operation/<int:phase_id>", views.add_operation, name="add_operation"),
+    path("update_description/<int:rating_id>", views.update_description, name= "update_description"),
 ]

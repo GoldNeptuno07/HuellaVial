@@ -106,12 +106,12 @@
                     {% with rating=phase|get_rating:subresource_obj %}
                         {% if rating %}
                             <!-- Description -->
-                            <td class="text-center border align-middle">{{ rating.description }}</td>
+                            <td class="text-center border align-middle" data-rating-id="{{ rating.id }}">{{ rating.description }}</td>
                             <form>
                                 {% csrf_token %}
                                 <!-- Intensity -->
                                 <td>
-                                    <select name="intensity" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
+                                    <select name="intensity" class="form-input text-center rating-cell" data-rating-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.intensity %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -119,7 +119,7 @@
                                 </td>
                                 <!-- Importance -->
                                 <td>
-                                    <select name="importance" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
+                                    <select name="importance" class="form-input text-center rating-cell" data-rating-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.importance %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -127,7 +127,7 @@
                                 </td>
                                 <!-- Extension -->
                                 <td>
-                                    <select name="extension" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
+                                    <select name="extension" class="form-input text-center rating-cell" data-rating-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.extension %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -135,7 +135,7 @@
                                 </td>
                                 <!-- Persistence -->
                                 <td>
-                                    <select name="persistence" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
+                                    <select name="persistence" class="form-input text-center rating-cell" data-rating-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.persistence %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -143,7 +143,7 @@
                                 </td>
                                 <!-- Reversibility -->
                                 <td>
-                                    <select name="reversibility" class="form-input text-center rating-cell" data-raiting-id="{{ rating.id }}" onchange="updateTotal(this)">
+                                    <select name="reversibility" class="form-input text-center rating-cell" data-rating-id="{{ rating.id }}" onchange="updateTotal(this)">
                                         {% for value, label in rating.rating_scale.choices %}
                                             <option value="{{ value }}" {% if value == rating.reversibility %}selected{% endif %}>{{ value }}</option>
                                         {% endfor %}
@@ -194,10 +194,27 @@
                     cell.textContent = tempInput.value;
                 };
 
-                // Changed to keydown (keypress doesn't detect Escape)
+                // Save changes if user presses 'Enter' and exit if it presses 'Escape'
                 tempInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         save();
+                        
+                        // Update description in the db
+                        const ratingId = parseInt(cell.dataset.ratingId);
+                        fetch(`{% url 'dashboard:update_description' rating_id=0 %}`.replace('0', ratingId), {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: `description=${tempInput.value}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                console.log('Success')
+                            }
+                        });
                     }
                     else if (e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) {
                         cell.textContent = originalText;
@@ -237,7 +254,7 @@
         
         document.querySelectorAll('.rating-cell').forEach(cell => {
             cell.addEventListener('change', function() {
-                const ratingId = this.dataset.raitingId;
+                const ratingId = this.dataset.ratingId;
                 const field = this.name;
                 const value = this.value;
 
@@ -260,7 +277,7 @@
 
         function updateTotal(selectElement) {
             const row = selectElement.closest('tr');
-            const ratingId = selectElement.getAttribute('data-raiting-id');
+            const ratingId = selectElement.getAttribute('data-rating-id');
             const totalCell = document.getElementById(`total-${ratingId}`);
             
             // Get all select values and sum them
