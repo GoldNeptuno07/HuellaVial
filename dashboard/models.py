@@ -20,21 +20,21 @@ class projects(models.Model):
 
 class phase(models.Model):
     id_project= models.ForeignKey(projects, on_delete= models.CASCADE, related_name= "phases")
-    name= models.CharField(max_length= 30)
+    name= models.CharField(max_length= 50)
 
     def __str__(self):
         return "<Project Phase {}>".format(self.name)
 
 class operation(models.Model):
     id_phase= models.ForeignKey(phase, on_delete= models.CASCADE, related_name= "operations")
-    name= models.CharField(max_length= 20)
+    name= models.CharField(max_length= 50)
     description= models.CharField(max_length= 100, default= "NA")
 
     def __str__(self):
         return self.name
 
 class resource(models.Model):
-    name= models.CharField(max_length= 20)
+    name= models.CharField(max_length= 50)
 
     def __str__(self):
         return self.name
@@ -47,8 +47,8 @@ class subresource(models.Model):
         return "<subresource {}>".format(self.name)
 
 class impact(models.Model):
-    id_operation = models.ForeignKey(operation, on_delete=models.CASCADE)
-    id_subresource = models.ForeignKey(subresource, on_delete=models.CASCADE)
+    id_operation = models.ForeignKey(operation, on_delete=models.CASCADE, related_name= 'impacts')
+    id_subresource = models.ForeignKey(subresource, on_delete=models.CASCADE, related_name= 'impacts')
     is_marked = models.BooleanField(default=False)  # New field to track X marks
     observation = models.CharField(max_length=50, blank=True)
 
@@ -66,7 +66,7 @@ class rating(models.Model):
         # Missing the scale 4
         MUY_ALTA= 5
     
-    id_phase= models.ForeignKey(phase, on_delete= models.CASCADE)
+    id_phase= models.ForeignKey(phase, on_delete= models.CASCADE, related_name= 'ratings')
     id_subresource= models.ForeignKey(subresource, on_delete= models.CASCADE)
     intensity= models.IntegerField(choices= rating_scale, default= 1)
     importance= models.IntegerField(choices= rating_scale, default= 1)

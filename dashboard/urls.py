@@ -9,4 +9,5 @@ urlpatterns = [
     path("update_rating/<int:rating_id>/", views.update_rating, name="update_rating"),
     path("add_operation/<int:phase_id>", views.add_operation, name="add_operation"),
     path("update_description/<int:rating_id>", views.update_description, name= "update_description"),
+    path("generate_report/<int:project_id>", views.generate_report, name= "generate_report"),
 ]

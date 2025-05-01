@@ -5,6 +5,11 @@ from django.http import JsonResponse, HttpResponse
 from datetime import timedelta
 from . import models
 
+import os
+from azure.ai.inference import ChatCompletionsClient
+from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.core.credentials import AzureKeyCredential
+
 # Create your views here.
 
 """
@@ -60,9 +65,9 @@ def impact_matrix_view(request, project_id: int = None, phase_name: str = None):
         # Create default phases
         for i, phase_name in enumerate(['preparacion', 'construccion', 'operacion']):
             new_phase= models.phase.objects.create(id_project=project, name=phase_name)
-            # Add the corresponding operations for "each" phase
+            # Add the corresponding operations of "each" phase (convert them to lowercase)
             for operation in operations[i]:
-                models.operation.objects.create(id_phase= new_phase, name= operation)
+                models.operation.objects.create(id_phase= new_phase, name= operation.lower())
             # Add default ratings for each subresource in the current phase
             for subresource in models.subresource.objects.all():
                 models.rating.objects.create(id_phase= new_phase, id_subresource= subresource)
@@ -161,4 +166,97 @@ def update_description(request, rating_id):
 
         return JsonResponse({"status": "ok"})
 
+
+"""
+    Iterate a long the proyect ratings and get all the operations 
+    that have a marked impact and affect the current rating subresource.
+
+    - Finished the prompt...
+
+        Example.
+                Nombre. Carretera 1
+                Fases. 
+                    - Preparacion.
+                        * Calidad del Agua.
+                            - Limpieza
+                            - Generacion de Acuoeductos
+                            # Calificaciones. 
+                                - Intensidad. 4
+                                - Importance. 3
+                                - Extension. 1
+                                - Persistence. 5
+                                etc...
+                        * Calidad de la Tierra.
+                            - Aplanar terreno
+                            # Calificaciones. 
+                                etc...
+                    - Construccion.
+                        * Calidad del Agua.
+                            - Desarrollo de vias subterraneas
+                            # Calificaciones. 
+                                etc...
+                        * Calidad de la Tierra.
+                            - Excabaciones
+                            # Calificaciones. 
+                                etc...
+                    - Mantenimiento 
+                        etc...
+"""
+def getMarkedImpactsInSubresource(rating_obj):
+    """
+        Get all the operations that damage an especific subresource
+    """
+    subresource_obj= rating_obj.id_subresource
+    impacts= subresource_obj.impacts.filter(is_marked= True) # If it's marked then it damages
+    
+    # Get all the marked operations
+    operation_ids= impacts.values_list('id_operation', flat= True) 
+    
+    # Return the marked operations of the current phase
+    return rating_obj.id_phase.operations.filter(id__in= operation_ids).distinct() 
+
+
+def generate_report(request, project_id):
+    project= models.projects.objects.get(pk= project_id)
+
+    prompt= f""" 
+            Nombre. {project.name}\n
+        """
+
+    phases= project.phases.all()
+    operations_per_phase= []
+    for phase in phases: # Project phases
+        operations= []
+        prompt += f"\t* Fase. {phase.name}\n"
+
+        any_operation= False
+        for rating in phase.ratings.all():
+
+            operations= getMarkedImpactsInSubresource(rating)
+            
+            # If there's no operation that damage the current
+            # subresource then skip the ratings
+            if len(operations) == 0: continue
+            else: any_operation= True
+
+            # Adding subresource name
+            prompt += f"\t\t\t- {rating.id_subresource.name}\n"
+            # Adding Operations
+            for operation in operations:
+                prompt += f"\t\t\t\t* {operation.name}\n"
+            # Adding ratings
+            prompt += "\t\t\t\t# Calificaciones\n"
+            prompt += f"\t\t\t\t\t- Intensidad. {rating.intensity}\n"
+            prompt += f"\t\t\t\t\t- Importancia. {rating.importance}\n"
+            prompt += f"\t\t\t\t\t- Extension. {rating.extension}\n"
+            prompt += f"\t\t\t\t\t- Reversibilidad. {rating.reversibility}\n"
+        
+        if not any_operation: prompt += f"\t\t\t\t-- No hay operaciones...\n"
+
+    """
+        Implement a secure connection with azure services 
+    """
+    # Code...
+
+    return HttpResponse(prompt)
 

@@ -4,19 +4,21 @@
 {% block title %}Project | {{ project.name }}{% endblock %}
 
 {% block nav-links %}
-    <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Fases del Projecto
-    </a>
-    <ul class="dropdown-menu">
-        {% for p in phases %}
-            <li><a class="dropdown-item" href="{% url 'dashboard:impact-matrix' project_id=project.id phase_name=p.name %}">{{ p.name|upper }}</a></li>
-        {% endfor %}
-    </ul>
-
-    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseAddOperation" role="button" aria-expanded="false" aria-controls="collapseAddOperation">Agregar Operacion</a>
-    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseRemOperation" role="button" aria-expanded="false" aria-controls="collapseRemOperation">Remover Operacion</a>
-    <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Salir</a>
+    <div class="d-flex">
+        <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Fases del Projecto</a>
+        <ul class="dropdown-menu">
+            {% for p in phases %}
+                <li><a class="dropdown-item" href="{% url 'dashboard:impact-matrix' project_id=project.id phase_name=p.name %}">{{ p.name|upper }}</a></li>
+            {% endfor %}
+        </ul>
+        <a class="nav-link fw-semibold me-5" href="{% url 'dashboard:generate_report' project_id=project.id %}" role="button" target="_blank">Generar Reporte</a>
+        <!-- --- -->
+        <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseAddOperation" role="button" aria-expanded="false" aria-controls="collapseAddOperation">Agregar Operacion</a>
+        <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseRemOperation" role="button" aria-expanded="false" aria-controls="collapseRemOperation">Remover Operacion</a>
+        <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Salir</a>
+    </div>
 {% endblock %}
+
 {% block CollapseCard %}
     <div class="collapse" id="collapseAddOperation">
         <div class="card card-body">
@@ -48,9 +50,7 @@
             </form>
         </div>
     </div>
-
 {% endblock %}
-
 
 
 {% block content %}
