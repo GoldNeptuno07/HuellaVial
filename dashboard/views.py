@@ -260,3 +260,4 @@ def generate_report(request, project_id):
 
     return HttpResponse(prompt)
 
+    
