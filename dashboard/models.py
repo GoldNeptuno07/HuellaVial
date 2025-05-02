@@ -28,7 +28,6 @@ class phase(models.Model):
 class operation(models.Model):
     id_phase= models.ForeignKey(phase, on_delete= models.CASCADE, related_name= "operations")
     name= models.CharField(max_length= 50)
-    description= models.CharField(max_length= 100, default= "NA")
 
     def __str__(self):
         return self.name
@@ -49,11 +48,10 @@ class subresource(models.Model):
 class impact(models.Model):
     id_operation = models.ForeignKey(operation, on_delete=models.CASCADE, related_name= 'impacts')
     id_subresource = models.ForeignKey(subresource, on_delete=models.CASCADE, related_name= 'impacts')
-    is_marked = models.BooleanField(default=False)  # New field to track X marks
-    observation = models.CharField(max_length=50, blank=True)
+    is_marked = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('id_operation', 'id_subresource')  # Prevent duplicates
+        unique_together = ('id_operation', 'id_subresource')
 
     def __str__(self):
         return "<impact object>"
@@ -77,3 +75,7 @@ class rating(models.Model):
 
     def __str__(self):
         return "<rating object>"
+
+class reports(models.Model):
+    id_project= models.ForeignKey(projects, on_delete= models.CASCADE, related_name= 'report')
+    content= models.CharField()

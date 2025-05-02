@@ -5,10 +5,28 @@ from django.http import JsonResponse, HttpResponse
 from datetime import timedelta
 from . import models
 
+from openai import AzureOpenAI
+
 import os
-from azure.ai.inference import ChatCompletionsClient
-from azure.ai.inference.models import SystemMessage, UserMessage
-from azure.core.credentials import AzureKeyCredential
+from dotenv import load_dotenv
+import markdown2
+
+# Azure Service
+load_dotenv()
+api_key= os.getenv("API_KEY")
+
+endpoint = "https://ai-al3477755514ai145092940397.cognitiveservices.azure.com/"
+model_name = "gpt-4.1"
+deployment = "gpt-4.1"
+
+subscription_key = api_key
+api_version = "2024-12-01-preview"
+
+client = AzureOpenAI(
+    api_version=api_version,
+    azure_endpoint=endpoint,
+    api_key=subscription_key,
+)
 
 # Create your views here.
 
@@ -167,41 +185,6 @@ def update_description(request, rating_id):
         return JsonResponse({"status": "ok"})
 
 
-"""
-    Iterate a long the proyect ratings and get all the operations 
-    that have a marked impact and affect the current rating subresource.
-
-    - Finished the prompt...
-
-        Example.
-                Nombre. Carretera 1
-                Fases. 
-                    - Preparacion.
-                        * Calidad del Agua.
-                            - Limpieza
-                            - Generacion de Acuoeductos
-                            # Calificaciones. 
-                                - Intensidad. 4
-                                - Importance. 3
-                                - Extension. 1
-                                - Persistence. 5
-                                etc...
-                        * Calidad de la Tierra.
-                            - Aplanar terreno
-                            # Calificaciones. 
-                                etc...
-                    - Construccion.
-                        * Calidad del Agua.
-                            - Desarrollo de vias subterraneas
-                            # Calificaciones. 
-                                etc...
-                        * Calidad de la Tierra.
-                            - Excabaciones
-                            # Calificaciones. 
-                                etc...
-                    - Mantenimiento 
-                        etc...
-"""
 def getMarkedImpactsInSubresource(rating_obj):
     """
         Get all the operations that damage an especific subresource
@@ -219,45 +202,78 @@ def getMarkedImpactsInSubresource(rating_obj):
 def generate_report(request, project_id):
     project= models.projects.objects.get(pk= project_id)
 
-    prompt= f""" 
-            Nombre. {project.name}\n
-        """
+    # If the report has already been generated
+    report= models.reports.objects.filter(id_project= project) 
+    if report.exists():
+        model_response= "".join([obj.content for obj in report])
 
-    phases= project.phases.all()
-    operations_per_phase= []
-    for phase in phases: # Project phases
-        operations= []
-        prompt += f"\t* Fase. {phase.name}\n"
+    else:
+        prompt= f""" 
+                Nombre. {project.name}\n
+            """
 
-        any_operation= False
-        for rating in phase.ratings.all():
+        # Get all the project's phases & operations
+        phases= project.phases.all()
+        operations_per_phase= []
+        for phase in phases:
+            operations= []
+            prompt += f"\t* Fase. {phase.name}\n"
 
-            operations= getMarkedImpactsInSubresource(rating)
+            any_operation= False
+            for rating in phase.ratings.all():
+
+                operations= getMarkedImpactsInSubresource(rating)
+                
+                # If there's no operation that damage the current
+                # subresource then skip the ratings
+                if len(operations) == 0: continue
+                else: any_operation= True
+
+                # Adding subresource name
+                prompt += f"\t\t\t- {rating.id_subresource.name}\n"
+                # Adding Operations
+                for operation in operations:
+                    prompt += f"\t\t\t\t* {operation.name}\n"
+                # Adding ratings
+                prompt += "\t\t\t\t# Calificaciones\n"
+                prompt += f"\t\t\t\t\t- Intensidad. {rating.intensity}\n"
+                prompt += f"\t\t\t\t\t- Importancia. {rating.importance}\n"
+                prompt += f"\t\t\t\t\t- Extension. {rating.extension}\n"
+                prompt += f"\t\t\t\t\t- Reversibilidad. {rating.reversibility}\n"
             
-            # If there's no operation that damage the current
-            # subresource then skip the ratings
-            if len(operations) == 0: continue
-            else: any_operation= True
+            if not any_operation: 
+                prompt += f"\t\t\t\t-- No hay operaciones...\n"
 
-            # Adding subresource name
-            prompt += f"\t\t\t- {rating.id_subresource.name}\n"
-            # Adding Operations
-            for operation in operations:
-                prompt += f"\t\t\t\t* {operation.name}\n"
-            # Adding ratings
-            prompt += "\t\t\t\t# Calificaciones\n"
-            prompt += f"\t\t\t\t\t- Intensidad. {rating.intensity}\n"
-            prompt += f"\t\t\t\t\t- Importancia. {rating.importance}\n"
-            prompt += f"\t\t\t\t\t- Extension. {rating.extension}\n"
-            prompt += f"\t\t\t\t\t- Reversibilidad. {rating.reversibility}\n"
-        
-        if not any_operation: prompt += f"\t\t\t\t-- No hay operaciones...\n"
+        # Make a request to the API 
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Genera un informe técnico sobre el impacto de cada operación en cada recurso por fase del proyecto, considerando las calificaciones de intensidad, importancia, extensión y reversibilidad.",
+                },
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            max_completion_tokens=800,
+            temperature=1.0,
+            top_p=1.0,
+            frequency_penalty=0.0,
+            presence_penalty=0.0,
+            model=deployment
+        )
 
-    """
-        Implement a secure connection with azure services 
-    """
-    # Code...
+        # Save response
+        model_response = response.choices[0].message.content
+        models.reports.objects.create(id_project= project, content= model_response)
 
-    return HttpResponse(prompt)
+    # Transform response into a markdown file
+    html_content = markdown2.markdown(
+        model_response,
+        extras=["fenced-code-blocks", "tables", "cuddled-lists"]
+    )
+
+    return HttpResponse(html_content)
 
     
