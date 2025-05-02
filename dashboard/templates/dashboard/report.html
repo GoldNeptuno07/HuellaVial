@@ -1,0 +1,46 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Report{% endblock %}
+
+{% block content %}
+    {{ content|safe }}
+
+    <div id="pageLoader" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    ">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-3">Loading...</p>
+    </div>
+{% endblock %}
+
+{% block js%}
+<script>
+    // SHOW LOADER                  
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide loader when DOM is loaded
+        document.getElementById('pageLoader').style.opacity = '0';
+        
+        // Remove loader after fade-out completes
+        setTimeout(function() {
+            document.getElementById('pageLoader').style.display = 'none';
+        }, 500); // Match this with CSS transition time
+    });
+
+    // Optional: Show loader immediately if page takes long to start loading
+    window.addEventListener('loadstart', function() {
+        document.getElementById('pageLoader').style.display = 'flex';
+    });
+
+
+</script>
+{% endblock %}

@@ -13,14 +13,13 @@ import markdown2
 
 # Azure Service
 load_dotenv()
-api_key= os.getenv("API_KEY")
 
-endpoint = "https://ai-al3477755514ai145092940397.cognitiveservices.azure.com/"
-model_name = "gpt-4.1"
-deployment = "gpt-4.1"
+endpoint = os.getenv("ENDPOINT")
+model_name = os.getenv("ENDPOINT")
+deployment = os.getenv("MODEL_NAME")
 
-subscription_key = api_key
-api_version = "2024-12-01-preview"
+subscription_key = os.getenv("API_KEY")
+api_version = os.getenv("API_VERSION")
 
 client = AzureOpenAI(
     api_version=api_version,
@@ -198,6 +197,45 @@ def getMarkedImpactsInSubresource(rating_obj):
     # Return the marked operations of the current phase
     return rating_obj.id_phase.operations.filter(id__in= operation_ids).distinct() 
 
+def generate_prompt(project):
+    prompt= f""" 
+                Nombre. {project.name}\n
+            """
+    # Get all the project's phases & operations
+    phases= project.phases.all()
+    operations_per_phase= []
+    for phase in phases:
+        operations= []
+        prompt += f"\t* Fase. {phase.name}\n"
+
+        any_operation= False
+        for rating in phase.ratings.all():
+
+            operations= getMarkedImpactsInSubresource(rating)
+
+            # If there's no operation that damage the current
+            # subresource then skip the ratings
+            if len(operations) == 0: continue
+            else: any_operation= True
+
+            # Adding subresource name
+            prompt += f"\t\t\t- {rating.id_subresource.name}\n"
+
+            # Adding Operations
+            for operation in operations:
+                prompt += f"\t\t\t\t* {operation.name}\n"
+
+            # Adding ratings
+            prompt += "\t\t\t\t# Calificaciones\n"
+            prompt += f"\t\t\t\t\t- Intensidad. {rating.intensity}\n"
+            prompt += f"\t\t\t\t\t- Importancia. {rating.importance}\n"
+            prompt += f"\t\t\t\t\t- Extension. {rating.extension}\n"
+            prompt += f"\t\t\t\t\t- Reversibilidad. {rating.reversibility}\n"
+        
+        if not any_operation: 
+            prompt += f"\t\t\t\t-- No hay operaciones...\n"
+
+    return prompt
 
 def generate_report(request, project_id):
     project= models.projects.objects.get(pk= project_id)
@@ -208,41 +246,7 @@ def generate_report(request, project_id):
         model_response= "".join([obj.content for obj in report])
 
     else:
-        prompt= f""" 
-                Nombre. {project.name}\n
-            """
-
-        # Get all the project's phases & operations
-        phases= project.phases.all()
-        operations_per_phase= []
-        for phase in phases:
-            operations= []
-            prompt += f"\t* Fase. {phase.name}\n"
-
-            any_operation= False
-            for rating in phase.ratings.all():
-
-                operations= getMarkedImpactsInSubresource(rating)
-                
-                # If there's no operation that damage the current
-                # subresource then skip the ratings
-                if len(operations) == 0: continue
-                else: any_operation= True
-
-                # Adding subresource name
-                prompt += f"\t\t\t- {rating.id_subresource.name}\n"
-                # Adding Operations
-                for operation in operations:
-                    prompt += f"\t\t\t\t* {operation.name}\n"
-                # Adding ratings
-                prompt += "\t\t\t\t# Calificaciones\n"
-                prompt += f"\t\t\t\t\t- Intensidad. {rating.intensity}\n"
-                prompt += f"\t\t\t\t\t- Importancia. {rating.importance}\n"
-                prompt += f"\t\t\t\t\t- Extension. {rating.extension}\n"
-                prompt += f"\t\t\t\t\t- Reversibilidad. {rating.reversibility}\n"
-            
-            if not any_operation: 
-                prompt += f"\t\t\t\t-- No hay operaciones...\n"
+        prompt= generate_prompt(project)        
 
         # Make a request to the API 
         response = client.chat.completions.create(
@@ -274,6 +278,6 @@ def generate_report(request, project_id):
         extras=["fenced-code-blocks", "tables", "cuddled-lists"]
     )
 
-    return HttpResponse(html_content)
+    return render(request, "dashboard/report.html", {'content': html_content})
 
     
