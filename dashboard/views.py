@@ -15,8 +15,8 @@ import markdown2
 load_dotenv()
 
 endpoint = os.getenv("ENDPOINT")
-model_name = os.getenv("ENDPOINT")
-deployment = os.getenv("MODEL_NAME")
+model_name = os.getenv("MODEL_NAME")
+deployment = os.getenv("MODEL_NAME") + "-2"
 
 subscription_key = os.getenv("API_KEY")
 api_version = os.getenv("API_VERSION")
@@ -230,6 +230,7 @@ def generate_prompt(project):
             prompt += f"\t\t\t\t\t- Intensidad. {rating.intensity}\n"
             prompt += f"\t\t\t\t\t- Importancia. {rating.importance}\n"
             prompt += f"\t\t\t\t\t- Extension. {rating.extension}\n"
+            prompt += f"\t\t\t\t\t- Persistencia. {rating.persistence}\n"
             prompt += f"\t\t\t\t\t- Reversibilidad. {rating.reversibility}\n"
         
         if not any_operation: 
@@ -246,14 +247,14 @@ def generate_report(request, project_id):
         model_response= "".join([obj.content for obj in report])
 
     else:
-        prompt= generate_prompt(project)        
+        prompt= generate_prompt(project)
 
         # Make a request to the API 
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": "Genera un informe técnico sobre el impacto de cada operación en cada recurso por fase del proyecto, considerando las calificaciones de intensidad, importancia, extensión y reversibilidad.",
+                    "content": "Genera un informe técnico sobre el impacto ambiental que causan las operaciones durante cada fase. Dichas fases son: Preparacion, Construccion y Operacion",
                 },
                 {
                     "role": "user",
