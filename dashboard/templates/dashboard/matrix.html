@@ -12,7 +12,6 @@
             {% endfor %}
         </ul>
         <a class="nav-link fw-semibold me-5" href="{% url 'dashboard:generate_report' project_id=project.id %}" role="button" target="_blank">Generar Reporte</a>
-        <!-- --- -->
         <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseAddOperation" role="button" aria-expanded="false" aria-controls="collapseAddOperation">Agregar Operacion</a>
         <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseRemOperation" role="button" aria-expanded="false" aria-controls="collapseRemOperation">Remover Operacion</a>
         <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Salir</a>
@@ -22,6 +21,7 @@
 {% block CollapseCard %}
     <div class="collapse" id="collapseAddOperation">
         <div class="card card-body">
+            <!-- Add a new operation  -->
             <form action="{% url 'dashboard:add_operation' phase_id=phase.id %}" method= "post">
                 {% csrf_token %}
                 <h3>Agregar Nueva Operacion</h3>
@@ -38,6 +38,7 @@
     </div>
     <div class="collapse" id="collapseRemOperation">
         <div class="card card-body">
+            <!-- Remove an existing operation from the matrix -->
             <form action="{% url 'dashboard:add_operation' phase_id=phase.id %}" method= "post">
                 {% csrf_token %}
                 <h3>Remover Operacion</h3>
@@ -79,26 +80,26 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Matrix content -->
+            <!-- Iterate a long the rows (subresources) -->
             {% for resource_obj in resources %}
                 {% for subresource_obj in resource_obj.subresources.all %}
                 <tr>
-                    <!-- Impacts Section (Left Side) -->
+                    <!-- Add the name of the resource (first column) and its subresources -->
                     {% if forloop.first %}
                     <th scope="row" rowspan="{{ resource_obj.subresources.count }}" class="text-center align-middle">
                         {{ resource_obj.name }}
                     </th>
                     {% endif %}
-                    
                     <td class="text-center align-middle">{{ subresource_obj.name }}</td>
-                    
+
+                    <!-- Add the table cells; add an 'X' if the operation is marked (it generates an impact) -->
                     {% for operation_obj in phase.operations.all %}
                         {% with marked=operation_obj|is_marked:subresource_obj %}
-                        <td class="impact-cell text-center border align-middle"
-                            data-operation="{{ operation_obj.id }}"
-                            data-subresource="{{ subresource_obj.id }}">
-                            {% if marked %}X{% endif %}
-                        </td>
+                            <td class="impact-cell text-center border align-middle"
+                                data-operation="{{ operation_obj.id }}"
+                                data-subresource="{{ subresource_obj.id }}">
+                                {% if marked %}X{% endif %}
+                            </td>
                         {% endwith %}
                     {% endfor %}
 
@@ -160,7 +161,7 @@
                                  </td>
                             </form>
                         {% else %}
-                            <!-- Handle missing rating (optional) -->
+                            <!-- Handle missing rating -->
                             <td colspan="7" class="text-center text-muted">No rating available</td>
                         {% endif %}
                     {% endwith %}
@@ -174,6 +175,8 @@
 
 {% block js %}
     <script>
+        // Allow editing the description by double-clicking
+        // on the cell
         document.getElementById('matrixTable').addEventListener('dblclick', function(event) {
             if(event.target.tagName === 'TD') {
                 const cell = event.target;
@@ -227,9 +230,8 @@
         });
 
         document.querySelectorAll('.impact-cell').forEach(cell => {
-            /*
-                Function to mark cell with 'X' and update the database
-            */
+            // Function to mark a cell with 'X' and update the database
+
             cell.addEventListener('click', function() {
                 const operationId = this.dataset.operation;
                 const subresourceId = this.dataset.subresource;
@@ -253,6 +255,8 @@
         });
         
         document.querySelectorAll('.rating-cell').forEach(cell => {
+            // Update a rating field in the database
+
             cell.addEventListener('change', function() {
                 const ratingId = this.dataset.ratingId;
                 const field = this.name;
@@ -280,7 +284,7 @@
             const ratingId = selectElement.getAttribute('data-rating-id');
             const totalCell = document.getElementById(`total-${ratingId}`);
             
-            // Get all select values and sum them
+            // Get all the ratings and add them
             const intensity = parseInt(row.querySelector('[name="intensity"]').value) || 0;
             const importance = parseInt(row.querySelector('[name="importance"]').value) || 0;
             const extension = parseInt(row.querySelector('[name="extension"]').value) || 0;
@@ -290,11 +294,15 @@
             const total = intensity + importance + extension + persistence + reversibility;
             totalCell.textContent = total;
 
-            // Update "Impacto Significativo" for this row
+            // If the sum of the ratings is higher than the
+            // average, it is marked as `Significant Impact`
             updateSignificantImpact();
         }
 
-        function calculateMeanTotal() {
+        function calculateColumnMean() {
+            // Calculate the mean of the values in the 
+            // 'Total' column
+
             const totalCells = document.querySelectorAll('.total-cell');
             let sum = 0;
             let count = 0;
@@ -309,7 +317,7 @@
         }
 
         function updateSignificantImpact() {
-            const mean = calculateMeanTotal();
+            const mean = calculateColumnMean();
             const totalCells = document.querySelectorAll('.total-cell');
 
             totalCells.forEach(cell => {
@@ -319,7 +327,6 @@
 
                 if (significantCell) {
                     significantCell.textContent = total > mean ? 'Yes' : 'No';
-                    // Optional: Add styling (e.g., color)
                     significantCell.style.color = total > mean ? 'red' : 'green';
                 }
             });
@@ -331,7 +338,6 @@
             document.querySelectorAll('.rating-cell').forEach(cell => {
                 updateTotal(cell);
             });
-
             // Calculate and apply "Impacto Significativo"
             updateSignificantImpact();
         });

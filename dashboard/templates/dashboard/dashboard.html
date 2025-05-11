@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block CollapseCard %}
+    <!-- Div to show a form and create a new project  -->
     <div class="collapse" id="collapseExample">
         <div class="card card-body">
             <form action="{% url 'dashboard:impact-matrix' project_id=0 phase_name='preparacion' %}" method= "post">
@@ -95,6 +96,8 @@
 
 {% block js %}
     <script>
+        // Function to add a new input field under the 
+        // `New Project` option (to add an operation)
         function addInput(element){
             const parent= element.parentElement;
             const name= element.getAttribute('name');
