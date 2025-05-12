@@ -1,22 +1,22 @@
 {% extends 'dashboard/base.html' %}
 {% load impact_filters %}
+{% load static %}
 
 {% block title %}Project | {{ project.name }}{% endblock %}
 
 {% block nav-links %}
-    <div class="d-flex">
-        <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Fases del Projecto</a>
-        <ul class="dropdown-menu">
-            {% for p in phases %}
-                <li><a class="dropdown-item" href="{% url 'dashboard:impact-matrix' project_id=project.id phase_name=p.name %}">{{ p.name|upper }}</a></li>
-            {% endfor %}
-        </ul>
-        <a class="nav-link fw-semibold me-5" href="{% url 'dashboard:generate_report' project_id=project.id %}" role="button" target="_blank">Generar Reporte</a>
-        <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseAddOperation" role="button" aria-expanded="false" aria-controls="collapseAddOperation">Agregar Operacion</a>
-        <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseRemOperation" role="button" aria-expanded="false" aria-controls="collapseRemOperation">Remover Operacion</a>
-        <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Salir</a>
-    </div>
-{% endblock %}
+        <a class="nav-link fw-semibold" href="#"><img class="img-fluid" style="width: 80px;" src="{% static 'dashboard/images/icon.png' %}" alt=""></a>
+    <a class="nav-link fw-semibold dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Fases del Projecto</a>
+    <ul class="dropdown-menu" id= "collapsePhases">
+        {% for p in phases %}
+            <li><a class="dropdown-item card card-body m-2" href="{% url 'dashboard:impact-matrix' project_id=project.id phase_name=p.name %}">{{ p.name|upper }}</a></li>
+        {% endfor %}
+    </ul>
+    <a class="nav-link fw-semibold" href="{% url 'dashboard:generate_report' project_id=project.id %}" role="button" target="_blank">Generar Reporte</a>
+    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseAddOperation" role="button" aria-expanded="false" aria-controls="collapseAddOperation">Agregar Operacion</a>
+    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseRemOperation" role="button" aria-expanded="false" aria-controls="collapseRemOperation">Remover Operacion</a>
+    <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Salir</a>
+    {% endblock %}
 
 {% block CollapseCard %}
     <div class="collapse" id="collapseAddOperation">
@@ -28,8 +28,6 @@
                 <div class="mb-3">
                     <label for="operationName" class="form-label">Nombre de la Operacion</label>
                     <input type="text" class="form-control" id="operationName" name="operation_name" autocomplete="off" required>
-                    <label for="operationDescription" class="form-label">Descripcion</label>
-                    <input type="text" class="form-control" id="operationDescription" name="operation_description" autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-primary">Agregar Operacion</button>
                 <input type="hidden" name="action" value="1"> 

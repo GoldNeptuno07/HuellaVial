@@ -58,7 +58,7 @@ class rating(models.Model):
         MINIMA= 1
         MODERADA= 2
         ALTA= 3
-        # Missing the scale 4
+        # Missing scale. 4
         MUY_ALTA= 5
     
     id_phase= models.ForeignKey(phase, on_delete= models.CASCADE, related_name= 'ratings')

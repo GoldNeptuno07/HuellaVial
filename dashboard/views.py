@@ -153,13 +153,12 @@ def add_operation(request, phase_id):
     action= request.POST.get('action')
     phase= models.phase.objects.get(pk= phase_id)
     name= request.POST.get('operation_name').lower()
-    description= request.POST.get('operation_description')
 
     exists= models.operation.objects.filter(name= name).exists()
     if action == "0" and exists: # Remove if it exists
         models.operation.objects.get(name= name).delete()
     elif action == "1" and not exists: # Add if it doesn't exists
-        models.operation.objects.create(id_phase= phase, name= name, description= description)
+        models.operation.objects.create(id_phase= phase, name= name)
 
     return redirect('dashboard:impact-matrix', project_id= phase.id_project.id, phase_name= phase.name)
 

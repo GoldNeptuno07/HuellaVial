@@ -1,17 +1,19 @@
 {% extends 'dashboard/base.html' %}
+{% load static %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block nav-links %}
-    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Nuevo Projecto</a>
+    <a class="nav-link fw-semibold" href="#"><img class="img-fluid" style="width: 80px;" src="{% static 'dashboard/images/icon.png' %}" alt=""></a>
+    <a class="nav-link fw-semibold" data-bs-toggle="collapse" href="#collapseWindow" role="button" aria-expanded="false" aria-controls="collapseWindow">Nuevo Projecto</a>
     <a class="nav-link fw-semibold" href="{% url 'dashboard:main' %}">Mi perfil</a>
     <a class="nav-link fw-semibold" href="#">Ayuda</a>
     <a class="nav-link fw-semibold" href="#">Salir</a>
 {% endblock %}
 
 {% block CollapseCard %}
-    <!-- Div to show a form and create a new project  -->
-    <div class="collapse" id="collapseExample">
+    <!-- Form for creating a new project  -->
+    <div class="collapse" id="collapseWindow">
         <div class="card card-body">
             <form action="{% url 'dashboard:impact-matrix' project_id=0 phase_name='preparacion' %}" method= "post">
                 {% csrf_token %}
@@ -22,15 +24,21 @@
                 <h5>Procesos</h5>
                 <div class="mb-3">
                     <h6>Fase Preparacion</h6>
-                    <button name="preparation[]" type="button" class="btn btn-success" onclick="addInput(this)">Agregar</button>
+
+                    <!-- <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Proceso">
+                        <button class="btn btn-outline-danger" type="button">X</button>
+                    </div> -->
+
+                    <button name="preparation[]" type="button" class="btn btn-success mt-2" onclick="addInput(this)">Agregar</button>
                 </div>
                 <div class="mb-3">
                     <h6>Fase Construccion</h6>
-                    <button name="construction[]" type="button" class="btn btn-success" onclick="addInput(this)">Agregar</button>
+                    <button name="construction[]" type="button" class="btn btn-success mt-2" onclick="addInput(this)">Agregar</button>
                 </div>
                 <div class="mb-3">
                     <h6>Fase Mantenimiento</h6>
-                    <button name="maintenance[]" type="button" class="btn btn-success" onclick="addInput(this)">Agregar</button>
+                    <button name="maintenance[]" type="button" class="btn btn-success  mt-2" onclick="addInput(this)">Agregar</button>
                 </div>
                 <button type="submit" class="btn btn-primary" onclick="">Crear Proyecto</button>
             </form>
@@ -101,12 +109,25 @@
         function addInput(element){
             const parent= element.parentElement;
             const name= element.getAttribute('name');
-            const newInput= document.createElement('input');
+                
+            const newDiv = document.createElement('div');
+            newDiv.classList.add('input-group');
+            newDiv.classList.add('mt-3');
+            const newInput = document.createElement('input');
             newInput.classList.add('form-control')
-            newInput.name= name;
-            newInput.autocomplete= false;
+            newInput.placeholder = 'Proceso';
+            newInput.name = name;
+            newInput.type = 'text'; 
+            newInput.autocomplete = 'off';
+            const newButton = document.createElement('button');
+            newButton.type = 'button';
+            newButton.textContent = 'X';
+            newButton.classList.add('btn');
+            newButton.classList.add('btn-outline-danger');
 
-            parent.insertBefore(newInput, element);
+            newDiv.appendChild(newInput);
+            newDiv.appendChild(newButton);
+            parent.insertBefore(newDiv, element);
         }
     </script>
 {% endblock %}

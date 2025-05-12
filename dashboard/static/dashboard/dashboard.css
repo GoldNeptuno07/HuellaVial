@@ -20,11 +20,17 @@
     cursor: pointer;
 }
 
+
+/* 
+    ##########################################
+    # Matrix View
+    ##########################################
+*/
+
 td {
     padding: 0.5rem;
     text-align: center;
 }
-
 
 table {
     width: 100%;
@@ -64,6 +70,10 @@ th.rotate > div {
 }
 .impact-cell:hover {
     background-color: #848586;
+}
+
+.phases-list{
+    transition: 2s;
 }
 
 /* LOADER */
