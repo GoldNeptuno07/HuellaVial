@@ -105,7 +105,7 @@
                     {% with rating=phase|get_rating:subresource_obj %}
                         {% if rating %}
                             <!-- Description -->
-                            <td class="text-center border align-middle" data-rating-id="{{ rating.id }}">{{ rating.description }}</td>
+                            <td class="text-center border align-middle" data-rating-id="{{ rating.id }}" data-allow-editing= "1">{{ rating.description }}</td>
                             <form>
                                 {% csrf_token %}
                                 <!-- Intensity -->
@@ -173,10 +173,11 @@
 
 {% block js %}
     <script>
-        // Allow editing the description by double-clicking
-        // on the cell
         document.getElementById('matrixTable').addEventListener('dblclick', function(event) {
-            if(event.target.tagName === 'TD') {
+            // Allow editing the description by double-clicking
+            // on the cell
+
+            if(event.target.tagName === 'TD' && event.target.dataset.allowEditing === "1") {
                 const cell = event.target;
                 const originalText = cell.textContent;
 
