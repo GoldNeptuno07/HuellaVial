@@ -78,9 +78,9 @@ WSGI_APPLICATION = "HuellaVial.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "huellavial_db",
-        "USER": "angelcruz",
-        "PASSWORD": "7deenerode2004",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": "db",
         "PORT": 5432,
     }
