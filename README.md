@@ -10,6 +10,9 @@ This software digitizes and automates the Impact Matrix, a methodology tradition
 * Detect potential damages to natural resources (e.g., water, soil, biodiversity).
 * Streamline reporting for compliance and decision-making.
 
+#### Technologies
+We will utilize **Django** as our primary web framework to develop both the front-end and back-end of the system. For our analysis tool, we will deploy a GPT model via **Microsoft Azure OpenAI Service** to summarize the data collected within the matrix.
+
 <hr>
 
 ## Dashboard
